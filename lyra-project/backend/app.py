@@ -1,7 +1,7 @@
 import os
 import re
 from dataclasses import dataclass
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import requests
 from dotenv import load_dotenv
@@ -10,11 +10,22 @@ from flask_cors import CORS
 
 load_dotenv()
 
+
+def parse_cors_origins() -> List[str] | str:
+    """Parse CORS allowlist from env, fallback to permissive for local dev."""
+    raw = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+    if not raw:
+        return "*"
+
+    origins = [item.strip().rstrip("/") for item in raw.split(",") if item.strip()]
+    return origins or "*"
+
+
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": parse_cors_origins()}})
 
 # ===== Static Configuration =====
-OWNER_NAME = "Chaitu"
+OWNER_NAME = os.getenv("OWNER_NAME", "Chaitu").strip() or "Chaitu"
 ALLOWED_MODES = {"STUDY", "CHILL", "PUBLIC"}
 MAX_USER_INPUT_LEN = 600
 MAX_RESPONSE_TOKENS = 180
@@ -84,7 +95,7 @@ def parse_mode_switch(message: str, current_mode: str, is_owner: bool) -> Tuple[
         return current_mode, "I can only switch between study, chill, and public modes."
 
     if not is_owner:
-        return current_mode, "Only Chaitu can change my mode."
+        return current_mode, f"Only {OWNER_NAME} can change my mode."
 
     return requested_mode, f"Mode changed to {requested_mode}."
 
@@ -112,9 +123,9 @@ def build_system_prompt(mode: str, is_owner: bool) -> str:
     }
 
     access_policy = (
-        "Owner speaker is Chaitu. You may assist with system-level controls when requested."
+        f"Owner speaker is {OWNER_NAME}. You may assist with system-level controls when requested."
         if is_owner
-        else "Current speaker is not owner. Do not reveal private/sensitive details or admin controls."
+        else f"Current speaker is not owner ({OWNER_NAME}). Do not reveal private/sensitive details or admin controls."
     )
 
     return (
@@ -173,13 +184,13 @@ def call_groq_api(user_message: str, context: LyraContext, is_owner: bool) -> st
 
 @app.get("/health")
 def health() -> Tuple[str, int]:
-    return jsonify({"status": "ok", "service": "LYRA backend"}), 200
+    return jsonify({"status": "ok", "service": "LYRA backend", "owner": OWNER_NAME}), 200
 
 
 @app.get("/testkey")
 def test_key() -> Tuple[str, int]:
     has_key = bool(os.getenv("GROQ_API_KEY", "").strip())
-    return jsonify({"groq_key_present": has_key}), 200
+    return jsonify({"groq_key_present": has_key, "owner": OWNER_NAME}), 200
 
 
 @app.post("/lyra")

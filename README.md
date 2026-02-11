@@ -95,6 +95,8 @@ All files are included in this repository exactly under the structure above.
 6. Set Environment Variables in Render:
    - `GROQ_API_KEY` = your real Groq key
    - `PORT` = `5000` (optional; Render handles port automatically)
+   - `OWNER_NAME` = `Chaitu`
+   - `CORS_ALLOWED_ORIGINS` = `https://chaitu-p-09.github.io/lyra-voice-ai/,http://localhost:8000`
 7. Deploy.
 8. Verify backend URLs:
    - `https://<your-render-app>.onrender.com/health`
@@ -108,7 +110,7 @@ All files are included in this repository exactly under the structure above.
    - Use GitHub Actions/pages workflow to publish from `lyra-project/frontend`.
 3. In `frontend/app.js`, set:
    ```js
-   API_BASE_URL: 'https://<your-render-app>.onrender.com'
+   API_BASE_URL: 'https://lyra-backend-16xj.onrender.com'
    ```
 4. Commit and push.
 5. Enable GitHub Pages in repo settings.
@@ -139,6 +141,8 @@ All files are included in this repository exactly under the structure above.
    ```env
    GROQ_API_KEY=your_real_groq_api_key
    PORT=5000
+   OWNER_NAME=Chaitu
+   CORS_ALLOWED_ORIGINS=https://chaitu-p-09.github.io/lyra-voice-ai/,http://localhost:8000
    ```
 5. Run backend:
    ```bash
@@ -154,7 +158,7 @@ All files are included in this repository exactly under the structure above.
    ```
 2. Open browser:
    - `http://localhost:8000`
-3. Confirm `API_BASE_URL` in `app.js` matches local backend URL (`http://127.0.0.1:5000`).
+3. Confirm `API_BASE_URL` in `app.js` matches your backend URL. For this deployment it is `https://lyra-backend-16xj.onrender.com`.
 
 ---
 
@@ -170,7 +174,7 @@ curl -s http://127.0.0.1:5000/health
 ```
 Expected:
 ```json
-{"service":"LYRA backend","status":"ok"}
+{"service":"LYRA backend","status":"ok","owner":"Chaitu"}
 ```
 
 ### API key check
@@ -179,7 +183,7 @@ curl -s http://127.0.0.1:5000/testkey
 ```
 Expected:
 ```json
-{"groq_key_present":true}
+{"groq_key_present":true,"owner":"Chaitu"}
 ```
 (or `false` if not configured)
 

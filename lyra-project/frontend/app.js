@@ -1,6 +1,6 @@
 const CONFIG = {
   // Change this in deployment to your Render backend URL.
-  API_BASE_URL: 'http://127.0.0.1:5000',
+  API_BASE_URL: 'https://lyra-backend-16xj.onrender.com',
   LANG: 'en-IN',
 };
 
